@@ -1,0 +1,9 @@
+opencv-python
+numpy
+pyttsx3
+pillow
+langchain
+langchain_openai
+openai
+tk
+python-dotenv
