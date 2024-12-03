@@ -1,171 +1,8 @@
-# import cv2
-# import numpy as np
-# import pyttsx3
-# import tkinter as tk
-# from PIL import Image, ImageTk
-# from langchain_openai import ChatOpenAI
-# from langchain.prompts import PromptTemplate
-# import os
-# from dotenv import load_dotenv
-
-# # Load environment variables for API keys
-# load_dotenv()
-
-# # Initialize Text-to-Speech Engin
-# tts_engine = pyttsx3.init()
-
-# OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-
-# # Gesture-to-Element Mapping
-# gesture_to_element = {
-#     "one_finger": "Oxygen (O)",
-#     "two_fingers": "Hydrogen (H)"
-# }
-
-# # Selected Elements
-# selected_elements = []
-
-# # Function for Text-to-Speech
-# def narrate(text):
-#     tts_engine.say(text)
-#     tts_engine.runAndWait()
-
-# # Function to Count Fingers Using Convexity Defects
-# def count_fingers(contour):
-#     hull = cv2.convexHull(contour, returnPoints=False)
-#     defects = cv2.convexityDefects(contour, hull)
-
-#     if defects is None:
-#         return 0
-
-#     finger_count = 0
-#     for i in range(defects.shape[0]):
-#         start, end, far, _ = defects[i, 0]
-#         start = tuple(contour[start][0])
-#         end = tuple(contour[end][0])
-#         far = tuple(contour[far][0])
-
-#         # Distance calculation
-#         a = np.linalg.norm(np.array(start) - np.array(far))
-#         b = np.linalg.norm(np.array(end) - np.array(far))
-#         c = np.linalg.norm(np.array(start) - np.array(end))
-#         angle = np.arccos((b**2 + c**2 - a**2) / (2 * b * c))
-
-#         # If the angle is less than 90 degrees, it's a valid finger
-#         if angle <= np.pi / 2:
-#             finger_count += 1
-
-#     return finger_count + 1  # Add thumb
-
-# def detect_gesture(frame):
-#     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-#     lower_skin = np.array([0, 30, 60], dtype=np.uint8)
-#     upper_skin = np.array([20, 150, 255], dtype=np.uint8)
-#     mask = cv2.inRange(hsv, lower_skin, upper_skin)
-
-#     # Morphological transformations
-#     mask = cv2.dilate(mask, np.ones((3, 3), np.uint8), iterations=3)
-#     mask = cv2.GaussianBlur(mask, (5, 5), 100)
-
-#     # Find contours
-#     contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-#     if contours:
-#         max_contour = max(contours, key=cv2.contourArea)
-#         if cv2.contourArea(max_contour) > 3000:  # Reduced minimum area
-#             return count_fingers(max_contour)
-
-#     return None
-
-# # LangChain Setup
-# prompt_template = """
-# Provide a detailed explanation about the following chemical element or compound: {text}.
-# Include its uses, properties, and significance.
-# """
-# prompt = PromptTemplate(input_variables=["text"], template=prompt_template)
-# llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7, openai_api_key=OPENAI_API_KEY)
-# llm_chain = prompt | llm
-
-# # Function to Generate Explanations Using LangChain
-# def generate_explanation(text):
-#     try:
-#         explanation = llm_chain.invoke({"text": text})
-#         return explanation
-#     except Exception as e:
-#         return f"Error generating explanation: {e}"
-
-# # Function to Update Tkinter GUI
-# def update_gui(elements, explanation=None):
-#     for widget in frame.winfo_children():
-#         widget.destroy()
-
-#     label = tk.Label(frame, text="Selected Elements:", font=("Arial", 14))
-#     label.pack()
-
-#     for element in elements:
-#         element_label = tk.Label(frame, text=f"- {element}", font=("Arial", 12))
-#         element_label.pack()
-
-#     if explanation:
-#         explanation_label = tk.Label(frame, text=f"Explanation:\n{explanation}", font=("Arial", 12), fg="blue", wraplength=400, justify="left")
-#         explanation_label.pack()
-
-# # Create Tkinter Window
-# window = tk.Tk()
-# window.title("Interactive Chemistry Tool")
-# window.geometry("600x700")
-
-# frame = tk.Frame(window)
-# frame.pack(pady=20)
-
-# label_img = tk.Label(window)
-# label_img.pack()
-
-# cap = cv2.VideoCapture(0)
-
-# while True:
-#     success, frame_cv = cap.read()
-#     if not success:
-#         print("Failed to capture frame.")
-#         break
-
-#     frame_cv = cv2.flip(frame_cv, 1)
-#     gesture = detect_gesture(frame_cv)
-
-#     if gesture in gesture_to_element:
-#         element = gesture_to_element[gesture]
-#         if element not in selected_elements:
-#             selected_elements.append(element)
-#             narrate(f"{element} selected")
-
-#     compound = None
-#     if "Oxygen (O)" in selected_elements and "Hydrogen (H)" in selected_elements:
-#         compound = "H2O"
-#         selected_elements.clear()
-
-#     explanation = None
-#     if compound:
-#         explanation = generate_explanation(compound)
-#     elif selected_elements:
-#         explanation = generate_explanation(" and ".join(selected_elements))
-
-#     update_gui(selected_elements, explanation)
-
-#     img = cv2.cvtColor(frame_cv, cv2.COLOR_BGR2RGB)
-#     img_pil = Image.fromarray(img)
-#     img_tk = ImageTk.PhotoImage(img_pil)
-
-#     label_img.config(image=img_tk)
-#     label_img.image = img_tk
-
-#     window.update_idletasks()
-#     window.update()
-
-# cap.release()
-# cv2.destroyAllWindows()
-
-
+from compound_db import COMPOUND_PROPERTIES
 import cv2
 import mediapipe as mp
+import time
+
 
 # Initialize Mediapipe Hands
 mp_hands = mp.solutions.hands
@@ -181,8 +18,8 @@ GESTURE_MAPPING = {
     3: 'Sodium (Na)',    # 3 fingers
     4: 'Chlorine (Cl)',  # 4 fingers
     5: 'Carbon (C)',     # 5 fingers
-    'pinch': 'Combine Elements',  # Pinch gesture for combining elements
 }
+
 
 # To store selected elements
 selected_elements = []
@@ -215,6 +52,14 @@ def combine_elements(elements):
     else:
         return None  # Invalid combination
 
+# Function to display compound properties
+def display_compound_properties(frame, compound, x, y):
+    """Display properties of a compound on the screen."""
+    if compound in COMPOUND_PROPERTIES:
+        properties = COMPOUND_PROPERTIES[compound]
+        for i, (key, value) in enumerate(properties.items()):
+            cv2.putText(frame, f"{key}: {value}", (x, y + (i * 40)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+
 # Initialize OpenCV for real-time video
 cap = cv2.VideoCapture(0)
 
@@ -241,21 +86,29 @@ while cap.isOpened():
             # Map extended fingers to corresponding element
             if extended_fingers in GESTURE_MAPPING:
                 element = GESTURE_MAPPING[extended_fingers]
-                cv2.putText(frame, f"Detected: {element}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                cv2.putText(frame, f"Detected: {element}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 255), 3)
 
                 # Add the element to selected_elements list
                 if element not in selected_elements:
                     selected_elements.append(element)
-                    cv2.putText(frame, f"Selected: {element}", (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
             elif extended_fingers == 0:  # Detect pinch gesture (zero extended fingers)
                 # Combine selected elements
                 compound = combine_elements(selected_elements)
                 if compound:
                     cv2.putText(frame, f"Compound: {compound}", (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+                    display_compound_properties(frame, compound, 10, 200)  # Display properties below the compound
                     selected_elements = []  # Reset selected elements after combining
                 else:
                     cv2.putText(frame, "Invalid combination!", (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                    selected_elements = []  # Reset for invalid attempt
+
+            # Display the selected elements on the screen
+            cv2.putText(frame, f"Selected: {', '.join(selected_elements)}", (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+    # Add a background to make it more attractive
+    frame = cv2.putText(frame, "Interactive Chemistry Tool", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    cv2.rectangle(frame, (5, 50), (frame.shape[1]-5, frame.shape[0]-5), (255, 255, 255), 5)
 
     # Display the video feed
     cv2.imshow("Interactive Chemistry Tool", frame)
