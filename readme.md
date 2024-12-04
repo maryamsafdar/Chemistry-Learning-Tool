@@ -1,8 +1,8 @@
-# ⚗️Interactive Learning Tool
+# ⚗️Chemistry Learning Tool
 
 ## Overview
 
-The **⚗️Interactive Learning Tool** allows users to create chemical compounds by using hand gestures, such as detecting extended fingers, and combines them into common compounds (e.g., water, sodium chloride). This application uses **Mediapipe** for hand gesture recognition, **OpenAI's GPT** (via LangChain) for generating detailed information about the compounds, and **Streamlit** for creating an interactive web interface.
+The **⚗️Chemistry Learning Tool** allows users to create chemical compounds by using hand gestures, such as detecting extended fingers, and combines them into common compounds (e.g., water, sodium chloride). This application uses **Mediapipe** for hand gesture recognition, **OpenAI's GPT** (via LangChain) for generating detailed information about the compounds, and **Streamlit** for creating an interactive web interface.
 
 ## Features
 
