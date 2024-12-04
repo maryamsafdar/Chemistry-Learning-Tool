@@ -1,0 +1,6 @@
+streamlit
+medimediapipe==0.10.0
+opencv-python==4.8.0.76
+openai==0.28.0
+langchain
+python-dotenv
