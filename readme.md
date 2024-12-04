@@ -16,7 +16,7 @@ The **⚗️Chemistry Learning Tool** allows users to create chemical compounds 
 
 To run this project, you'll need to have the following dependencies installed:
 
-- Python 3.x
+- Python 3.10
 - Streamlit
 - OpenAI API (GPT)
 - OpenCV
@@ -26,8 +26,8 @@ To run this project, you'll need to have the following dependencies installed:
 
 1. Clone this repository to your local machine:
    ```bash
-   git clone https://github.com/yourusername/interactive-chemistry-tool.git
-   cd interactive-chemistry-tool
+   git clone https://github.com/maryamsafdar/Chemistry-Learning-Tool
+   cd Chemistry-Learning-Tool
    ```
 
 2. Install the required dependencies:
